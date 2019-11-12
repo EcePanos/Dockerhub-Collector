@@ -6,6 +6,4 @@ It collects metadata for repositories in the Dockerhub library and its first deg
 
 Using it as standalone is also possible.
 
-simply `docker run panosece/dockerhub-collector:<tag>`
-
 For instructions on using it with the Orchestrator visit its [github page](https://github.com/serviceprototypinglab/mao-orchestrator).
