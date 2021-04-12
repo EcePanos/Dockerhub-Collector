@@ -1,6 +1,7 @@
 import requests
 import json
 import counter
+import argparse
 
 additional_users = [{'name': 'ibmcorp'},
                     {'name': 'oracle'},
@@ -12,7 +13,7 @@ def get_list_of_users():
     page_number = 1
     total_num = 0
     list_of_users['library'] = []
-    link = 'https://hub.docker.com/v2/repositories/library/?page_size=10&page='
+    link = 'https://hub.docker.com/v2/repositories/library/?page_size=100&page='
 
     def get_info_from_user(possible_user):
         number = 0
@@ -65,14 +66,31 @@ def get_json(dict_of_users):
     return end_dict
 
 
-#print(get_json(get_list_of_users()))
-sample = get_list_of_users()
-with open('result.json', 'w') as fp:
-    json.dump(sample, fp)
-with open('result.json') as input:
-    data = json.load(input)
-with open('final.json', 'w') as output:
-    end = get_json(data)
-    json.dump(end, output)
+def acquire_data(output_file='data.json'):
+    """Acquire raw source data from Docker Hub API"""
+    hub_users = get_list_of_users()
+    data = get_json(hub_users)
+    with open(output_file, 'w') as file:
+        json.dump(data, file)
 
-counter.count('final.json')
+
+def assess_data(input_file='data.json'):
+    """Assessment of source data acquired from Docker Hub API"""
+    counter.count(input_file)
+
+
+cli = argparse.ArgumentParser(description='Docker Hub Metadata Collector')
+
+cli.add_argument("process_step", choices=['acquire', 'assess', 'all'], default='all', nargs='?', help='Process step to run. Select single step to "acquire" or "assess" data. Or use "all" to run both steps intertwined (default).')
+
+args = cli.parse_args()
+if args.process_step == 'acquire':
+    # run acquire data step only
+    acquire_data()
+elif args.process_step == 'assess':
+    # run assess data step only
+    assess_data()
+elif args.process_step == 'all':
+    # run both steps intertwined
+    acquire_data()
+    assess_data()
